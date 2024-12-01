@@ -18,7 +18,7 @@ var VendaSchema = new Schema({
 });
 
 // Método para calcular o valor total da venda
-VendaSchema.methods.ValorTotal = async function() {
+VendaSchema.methods.calcularValorTotal = async function() {
   // Obter os produtos usando os ObjectIds passados
   const produtos = await Produto.find({ '_id': { $in: this.produtos } });
 
