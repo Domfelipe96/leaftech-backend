@@ -113,7 +113,8 @@ router.route('/clientes')
           cidade: req.body.cidade,
           estado: req.body.estado,
           cep: req.body.cep,
-      }});
+        }
+      });
       console.log(cliente);
 
       await cliente.save();
@@ -177,22 +178,23 @@ router.route('/vendas')
 
   // Método: Criar venda (POST http://localhost:8000/api/vendas) 
   .post(async (req, res) => {
+    const produtos = req.body.produtos.map(({id}) => id)
     try {
       const venda = new Venda({
         cliente: req.body.cliente,
-        produtos: req.body.produtos,
-      });
-
-      await venda.calcularValorTotal(produtos.id);
+        produtos,
+      });      
+      await venda.calcularValorTotal();
       await venda.save();
       res.json({ message: 'Venda registrada com sucesso!', venda });
     } catch (error) {
+      console.log(error);
       res.status(500).send('Erro ao registrar a venda: ' + error);
     }
   })
 
   // Método: Obter todas as vendas (GET http://localhost:8000/api/vendas) 
-    .get(async (req, res) => {
+  .get(async (req, res) => {
     try {
       const vendas = await Venda.find().populate('cliente produtos endereco');
       res.json(vendas);
