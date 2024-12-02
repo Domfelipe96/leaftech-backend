@@ -224,6 +224,4 @@ router.route('/vendas/:venda_id')
 app.use('/api', router);
 
 // Iniciando o servidor
-app.listen(port, () => {
-  console.log(`Iniciando o app na porta ${port}`);
-});
+module.exports = app;
