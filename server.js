@@ -3,6 +3,7 @@
  * Descrição: Configuração do servidor e conexão com o banco de dados
  */
 
+
 // Importação dos pacotes
 const express = require('express');
 const cors = require('cors'); // Importa o pacote CORS
@@ -13,7 +14,7 @@ const Cliente = require('./app/models/cliente'); // Modelo Cliente
 const Venda = require('./app/models/venda'); // Modelo Venda
 
 // Conexão com o MongoDB
-mongoose.connect('mongodb+srv://Leaftech:leaftech@cluster0.sljr8.mongodb.net/leaftech-backend')
+mongoose.connect('mongodb+srv://Leaftech:leaftech@cluster0.sljr8.mongodb.net/leaftech-backend?retryWrites=true&w=majority&family=4')
   .then(() => console.log('Conexão com o banco de dados estabelecida com sucesso!'))
   .catch((error) => console.error('Erro ao conectar com o MongoDB:', error));
 
@@ -43,16 +44,17 @@ router.get('/', (req, res) => {
   res.json({ message: 'Olá! Seja bem-vindo(a) à Leaf Tech!' });
 });
 
+
 // Rotas para Produtos (GET ALL & POST)
 router.route('/produtos')
 
-  /* Método: Criar produto (POST http://localhost:8000/api/produtos) */
+  // Método: Criar produto (POST http://localhost:8000/api/produtos)
   .post(async (req, res) => {
     try {
       const produto = new Produto({
         nome: req.body.nome,
         preco: req.body.preco,
-        descricao: req.body.descricao
+        descricao: req.body.descricao,
       });
 
       await produto.save();
@@ -62,7 +64,7 @@ router.route('/produtos')
     }
   })
 
-  /* Método: Obter todos os produtos (GET http://localhost:8000/api/produtos) */
+  // Método: Obter todos os produtos (GET http://localhost:8000/api/produtos) 
   .get(async (req, res) => {
     try {
       const produtos = await Produto.find();
@@ -75,7 +77,7 @@ router.route('/produtos')
 // Rota para um produto específico, usando o ID
 router.route('/produtos/:produto_id')
 
-  /* Método: Obter um produto específico pelo ID (GET http://localhost:8000/api/produtos/:produto_id) */
+  // Método: Obter um produto específico pelo ID (GET http://localhost:8000/api/produtos/:produto_id) 
   .get(async (req, res) => {
     try {
       const produto = await Produto.findById(req.params.produto_id);
@@ -93,7 +95,7 @@ router.route('/produtos/:produto_id')
 // Rotas para Clientes (GET ALL & POST)
 router.route('/clientes')
 
-  /* Método: Criar cliente (POST http://localhost:8000/api/clientes) */
+  // Método: Criar cliente (POST http://localhost:8000/api/clientes) 
   .post(async (req, res) => {
     try {
       const cliente = new Cliente({
@@ -121,7 +123,7 @@ router.route('/clientes')
     }
   })
 
-  /* Método: Obter todos os clientes (GET http://localhost:8000/api/clientes) */
+  // Método: Obter todos os clientes (GET http://localhost:8000/api/clientes) 
   .get(async (req, res) => {
     try {
       const clientes = await Cliente.find();
@@ -134,7 +136,7 @@ router.route('/clientes')
 // Rota para um cliente específico, usando o ID
 router.route('/clientes/:cliente_id')
 
-  /* Método: Obter um cliente específico pelo ID (GET http://localhost:8000/api/clientes/:cliente_id) */
+  // Método: Obter um cliente específico pelo ID (GET http://localhost:8000/api/clientes/:cliente_id) 
   .get(async (req, res) => {
     try {
       const cliente = await Cliente.findById(req.params.cliente_id);
@@ -152,7 +154,7 @@ router.route('/clientes/:cliente_id')
 // Rota para pegar o usuario e senha do cliente cadastrado
 router.route('/login')
 
-  /* Método: Obter um cliente específico pelo ID (POST http://localhost:8000/api/login) */
+  // Método: Obter um cliente específico pelo ID (POST http://localhost:8000/api/login) 
   .post(async (req, res) => {
     try {
       const cliente = await Cliente.findOne({
@@ -173,16 +175,15 @@ router.route('/login')
 // Rotas para Vendas (GET ALL & POST)
 router.route('/vendas')
 
-  /* Método: Criar venda (POST http://localhost:8000/api/vendas) */
+  // Método: Criar venda (POST http://localhost:8000/api/vendas) 
   .post(async (req, res) => {
     try {
       const venda = new Venda({
         cliente: req.body.cliente,
         produtos: req.body.produtos,
-        endereco: req.body.endereco,
       });
 
-      await venda.calcularValorTotal();
+      await venda.calcularValorTotal(produtos.id);
       await venda.save();
       res.json({ message: 'Venda registrada com sucesso!', venda });
     } catch (error) {
@@ -190,8 +191,8 @@ router.route('/vendas')
     }
   })
 
-  /* Método: Obter todas as vendas (GET http://localhost:8000/api/vendas) */
-  .get(async (req, res) => {
+  // Método: Obter todas as vendas (GET http://localhost:8000/api/vendas) 
+    .get(async (req, res) => {
     try {
       const vendas = await Venda.find().populate('cliente produtos endereco');
       res.json(vendas);
@@ -203,7 +204,7 @@ router.route('/vendas')
 // Rota para uma venda específica, usando o ID
 router.route('/vendas/:venda_id')
 
-  /* Método: Obter uma venda específica pelo ID (GET http://localhost:8000/api/vendas/:venda_id) */
+  // Método: Obter uma venda específica pelo ID (GET http://localhost:8000/api/vendas/:venda_id) 
   .get(async (req, res) => {
     try {
       const venda = await Venda.findById(req.params.venda_id).populate('cliente produtos endereco');
@@ -217,6 +218,7 @@ router.route('/vendas/:venda_id')
       res.status(500).send('Erro ao tentar buscar a venda: ' + error);
     }
   });
+
 
 // Definindo o prefixo das rotas: '/api'
 app.use('/api', router);
